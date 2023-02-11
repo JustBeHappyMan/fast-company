@@ -1,12 +1,30 @@
 import React, { useState } from "react";
-import api from "../api";
+import User from "./user";
+import api from "../api/api";
+
+import SearchStatus from "./searchStatus";
 
 const Users = () => {
   const [users, setUsers] = useState(api.users.fetchAll());
 
-  const renderTable = (users) => {
-    if (users.length) {
-      return (
+  const handleDelete = (id) => {
+    setUsers(users.filter((user) => user._id !== id));
+  };
+
+  const handleToggleBookmark = (id) => {
+    setUsers(
+      users.map((user) => {
+        user._id === id && (user.bookmark = !user.bookmark);
+
+        return user;
+      })
+    );
+  };
+
+  return (
+    <React.Fragment>
+      <SearchStatus length={users.length} />
+      {users.length > 0 && (
         <table className="table">
           <thead>
             <tr>
@@ -15,73 +33,23 @@ const Users = () => {
               <th scope="col">Профессия</th>
               <th scope="col">Встретился, раз</th>
               <th scope="col">Оценка</th>
+              <th scope="col">Избранное</th>
               <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>
-                  {user.qualities.map((quality) => (
-                    <span
-                      key={quality._id}
-                      className={["badge", "mx-1", `bg-${quality.color}`].join(
-                        " "
-                      )}
-                    >
-                      {quality.name}
-                    </span>
-                  ))}
-                </td>
-                <td>{user.profession.name}</td>
-                <td>{user.completedMeetings}</td>
-                <td>{user.rate}/5</td>
-                <td>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => handleDelete(user._id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
+              <User
+                key={user._id}
+                handleDelete={handleDelete}
+                handleToggleBookmark={handleToggleBookmark}
+                {...user}
+              />
             ))}
           </tbody>
         </table>
-      );
-    }
-  };
-
-  const handleDelete = (userId) => {
-    setUsers(users.filter((user) => user._id !== userId));
-  };
-
-  const renderPhrase = (number) => {
-    if (number > 0) {
-      return (
-        <h2>
-          <span className="badge bg-primary">
-            {`${number} человек${
-              [2, 3, 4].includes(number) ? "а" : ""
-            } тусанет с тобой сегодня`}
-          </span>
-        </h2>
-      );
-    } else {
-      return (
-        <h2>
-          <span className="badge bg-danger">{"Никто с тобой не тусанет"}</span>
-        </h2>
-      );
-    }
-  };
-
-  return (
-    <>
-      {renderPhrase(users.length)}
-      {renderTable(users)}
-    </>
+      )}
+    </React.Fragment>
   );
 };
 
