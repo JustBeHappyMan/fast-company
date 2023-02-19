@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Users from './components/users';
-import SearchStatus from './components/searchStatus';
-import api from './api/api';
+import api from './api';
 
 function App() {
   const [users, setUsers] = useState(api.users.fetchAll());
@@ -22,7 +21,6 @@ function App() {
 
   return (
     <React.Fragment>
-      <SearchStatus length={users.length} />
       <Users
         users={users}
         handleDelete={handleDelete}
